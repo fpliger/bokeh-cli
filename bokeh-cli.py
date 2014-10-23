@@ -71,8 +71,8 @@ def cli(source_filename, output_path, title, plot_type, tools, series, palette,
 
     Examples:
 
-    >> python bokeh-cli.py --title "My Naice Plot" --series "High,Low,Close"
-    --plot_type "circle,line" --palette Reds --source_filename stocks_data.csv
+    >> python bokeh-cli.py --title "My Nice Plot" --series "High,Low,Close"
+    --plot_type "circle,line" --palette Reds --source_filename sample_data/stocks_data.csv
 
     >> cat sample_data/stocks_data.csv | python bokeh-cli.py --buffer t
 
