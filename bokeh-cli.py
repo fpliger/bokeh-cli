@@ -30,7 +30,7 @@ You can also provide your own custom palette by specifying a list colors. I.e.:
 
 @click.command()
 @click.option('--source_filename',
-              default='stocks_data.csv',
+              default='sample_data/stocks_data.csv',
               help='path to the series data file (i.e.: /source/to/my/data.csv')
 @click.option('--output_path', default='cli.html',
     #prompt='Your name',
