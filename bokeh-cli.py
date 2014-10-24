@@ -32,9 +32,25 @@ You can also provide your own custom palette by specifying a list colors. I.e.:
 @click.option('--source_filename',
               default='sample_data/stocks_data.csv',
               help='path to the series data file (i.e.: /source/to/my/data.csv')
-@click.option('--output_path', default='cli.html',
+@click.option('--output', default='file://cli_output.html',
     #prompt='Your name',
-    help='The person to greet.'
+    help='''Selects the plotting output, which could either be sent to an html '''
+         '''file or a bokeh server instance. Syntax convention for this option '''
+         '''is as follows: <output_type>://<type_options>
+
+        where:
+          - output_type: 'file' or 'server'
+          - 'file' type options: path_to_output_file
+          - 'server' type options syntax: docname[@url][@name]
+
+        Defaults to: --output file://cli_output.html
+
+        Examples:
+            --output file://cli_output.html
+            --output file:///home/someuser/bokeh_rocks/cli_output.html
+            --output server://clidemo
+
+         '''
 )
 @click.option('--title', default='Bokeh CLI')
 @click.option('--plot_type', default='circle, line')
@@ -63,7 +79,7 @@ You can also provide your own custom palette by specifying a list colors. I.e.:
     """
 )
 @click.option('--x_axis_type', default='auto')
-def cli(source_filename, output_path, title, plot_type, tools, series, palette,
+def cli(source_filename, output, title, plot_type, tools, series, palette,
         x_axis_name, buffer, x_axis_type='auto'):
     """
     Bokeh Command Line Tool is a minimal client to access high level plotting
@@ -91,7 +107,30 @@ def cli(source_filename, output_path, title, plot_type, tools, series, palette,
 
     # bokeh boilerplate code
     colors = brewer[palette][len(source.columns)]
-    output_file(output_path, title = title)
+
+    output_type, output_options = parse_output(output)
+
+    if output_type == 'file':
+        output_file(output_options, title = title)
+
+    elif output_type == 'server':
+        output_options = output_options.split("@")
+        attrnames = ['docname', 'url', 'name']
+
+        # unpack server output parametrs in order to pass them to the plot
+        # creation function
+        kws = dict(
+            (attrname, value) for attrname, value in zip(
+                attrnames, output_options)
+        )
+        output_server(**kws)
+
+    else:
+        print "Unknown output type %s found. Valid values are: file|server" % (
+            output_type
+        )
+        return
+
     hold()
 
     if not x_axis_name:
@@ -172,6 +211,12 @@ def filter_series(series, x_axis_name, source_columns):
 
     else:
         return series.split(',')
+
+
+def parse_output(output):
+    output_type, output_options = output.split('://')
+
+    return output_type, output_options
 
 if __name__ == '__main__':
     cli()
